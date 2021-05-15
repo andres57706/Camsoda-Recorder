@@ -3,7 +3,7 @@
 class url:
     online_api = 'https://www.camsoda.com/api/v1/browse/online'
     video_api = 'https://www.camsoda.com/api/v1/video/vtoken/{model}?username=guest_{num}'
-    stream = 'https://{server}/cam/mp4:{stream_name}_h264_aac_480p/playlist.m3u8?token={token}'
+    stream = 'https://{server}/{stream_name}_h264_aac_720p/tracks-v1a1/mono.m3u8?token={token}'
     user = 'https://www.camsoda.com/api/v1/user/{model}'
 
 

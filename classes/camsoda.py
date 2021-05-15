@@ -73,9 +73,9 @@ class get():
     def stream(self, model_data, r):
         num = random.randint(1000, 30000)
         video_data = r.get(helper.url.video_api.format(
-            model=model_data['tpl'][1], num=num)).json()
+            model=model_data['tpl']['1'], num=num)).json()
         stream = helper.url.stream.format(server=video_data['edge_servers'][0],
-                                          stream_name=video_data['stream_name'], model=model_data['tpl'][1],
+                                          stream_name=video_data['stream_name'], model=model_data['tpl']['1'],
                                           token=video_data['token'])
         return stream
 
@@ -98,10 +98,10 @@ class RecordingThread(threading.Thread):
         self.model_data = model_data
         self.DEVNULL = open(os.devnull, 'wb')
         self.config = config
-        self.currently_recording_models[model_data['tpl'][1]] = model_data
+        self.currently_recording_models[model_data['tpl']['1']] = model_data
         self.r = r
         print(
-            Fore.GREEN + "started recording {}".format(self.model_data['tpl'][2]) + Fore.RESET)
+            Fore.GREEN + "started recording {}".format(self.model_data['tpl']['2']) + Fore.RESET)
 
     @property
     def recording_models(self):
@@ -127,9 +127,9 @@ class RecordingThread(threading.Thread):
             print('error in recording_models', e)
         finally:
             print(
-                Fore.RED + "finished recording {}".format(self.model_data['tpl'][2]) + Fore.RESET)
+                Fore.RED + "finished recording {}".format(self.model_data['tpl']['2']) + Fore.RESET)
             try:
-                self.currently_recording_models.pop(self.model_data['tpl'][1])
+                self.currently_recording_models.pop(self.model_data['tpl']['1'])
             except:
                 pass
 
@@ -153,7 +153,7 @@ class RecordingThread(threading.Thread):
     def create_path(self, template, time):
         '''builds a recording-specific path from a template'''
         return template.format(
-            path=self.config.settings.save_directory, model=self.model_data['tpl'][1],
+            path=self.config.settings.save_directory, model=self.model_data['tpl']['1'],
             seconds=time.strftime("%S"), day=time.strftime("%d"),
             minutes=time.strftime("%M"), hour=time.strftime("%H"),
             month=time.strftime("%m"), year=time.strftime("%Y"))
@@ -162,7 +162,7 @@ class RecordingThread(threading.Thread):
 def start_recording(model_data, settings, r):
     '''starts recording a session if it is not already being recorded'''
     already_recording = RecordingThread.currently_recording_models.get(
-        model_data['tpl'][1])
+        model_data['tpl']['1'])
     if not already_recording:
         RecordingThread(model_data, settings, r).start()
         return
@@ -198,7 +198,16 @@ class should_record_model():
 
     def check(self, model):
         # print(model)
-        if model['tpl'][1] in Wanted(self._settings).wanted_models:
+        wmodels = Wanted(self._settings).wanted_models
+        chkmodel = None
+
+        try:
+            chkmodel = model['tpl']['1']
+        except Exception as e:
+            # print(e)
+            chkmodel = model['tpl'][1]
+
+        if chkmodel in wmodels:
             if not hasattr(model, 'status') or not model['status'] == 'private' or model['status'] == 'online':
                 return True
         return False
